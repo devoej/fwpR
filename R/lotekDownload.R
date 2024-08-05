@@ -9,6 +9,8 @@
 #' @return A dataframe of collar locations within the provided start and end dates, arranged by device SN and date
 #' @export
 
+usethis::use_pipe()
+
 # - Function to download lotek data
 #   Original versions of code provided by Lotek
 lotekDownload <- function(Username, # WebService username
