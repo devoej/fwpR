@@ -15,7 +15,8 @@ Imports:
     dplyr,
     httr,
     GA,
-    lubridate
+    lubridate,
+    magrittr
 Suggests: 
     knitr,
     rmarkdown
