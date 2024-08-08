@@ -7,24 +7,24 @@
 toLines(x, indID, datetime, lat, long)
 }
 \arguments{
-\item{x}{object of data.frame or sf point geometry object containing collar locations}
+\item{x}{data.frame or sf point geometry object containing collar locations}
 
-\item{indID}{name of the field identifying individual animals}
+\item{indID}{name of the field identifying individual animals - in quotes}
 
-\item{datetime}{name of the field identifying DateTime}
+\item{datetime}{name of the field identifying DateTime - in quotes}
 
-\item{lat}{if data.frame, name of the field containing the latitude}
+\item{lat}{if data.frame, name of the field containing the latitude - in quotes}
 
-\item{long}{if data.frame, name of the field containing the longitude}
+\item{long}{if data.frame, name of the field containing the longitude - in quotes}
 }
 \value{
-A sf line geometry layer by individual
+sf object containing line feature geometries by individual. Retains all fields & attributes from x
 }
 \description{
 This function converts a dataframe or sf point object containing collar locations for individual animals to an sf object containing line geometry features for each individual.
 Note:
 \itemize{
-\item Coordinates must be in WGS84 - Lat/Longs
+\item Coordinates must be in WGS84 - Lat/Long
 \item Assumes collar data has been "cleaned"
 }
 }
