@@ -2,4 +2,5 @@
 
 export("%>%")
 export(lotekDownload)
+export(toLines)
 importFrom(magrittr,"%>%")
