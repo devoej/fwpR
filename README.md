@@ -22,7 +22,7 @@ To use the package: `library(fwpR)`
 
 ## Troubleshooting
 
-- If the package isn’t working after updating, delete the package folder
-  in your R package library and re-install with
+- If the package isn’t working after updating, manually delete the
+  package folder in your R package library and re-install with
   `devtools::install_github("devoej/fwpR")`.
 - Contact DeVoe
