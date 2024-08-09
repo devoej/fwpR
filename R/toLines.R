@@ -2,13 +2,12 @@
 #'
 #' This function converts a dataframe or sf point object containing collar locations for individual animals to an sf object containing line geometry features for each individual. Retains all fields & attributes from the input dataset.
 #'
-#' Note:
 #' - Coordinates must be in WGS84 - Lat/Long
-#' - Assumes collar data has been "cleaned"
+#' - Assumes collar data has been "cleaned" prior to running function
 #'
 #' @param x data.frame or sf point geometry object containing collar locations
-#' @param indID name of the field identifying individual animals, in quotes
-#' @param datetime name of the field identifying DateTime, in quotes
+#' @param indID name of the field identifying individual animals, in quotes (required)
+#' @param datetime name of the field identifying DateTime, in quotes (required)
 #' @param lat if data.frame, name of the field containing the latitude, in quotes
 #' @param long if data.frame, name of the field containing the longitude, in quotes
 #' @return sf object containing line feature geometries by individual

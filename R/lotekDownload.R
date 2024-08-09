@@ -34,8 +34,8 @@ lotekDownload <- function(Username, # WebService username
 
   GPSDat <- dplyr::bind_rows(content) %>%
     dplyr::mutate(DateTimeGMT = lubridate::parse_date_time(RecDateTime, orders = "ymd_HMS"),
-           FixStatus = parse_RxStatus(RxStatus),
-           Satellites = parse_Satellites(RxStatus)) %>%
+           FixStatus = parse_RxStatus(RxStatus), # see function below
+           Satellites = parse_Satellites(RxStatus)) %>% # see function below
     dplyr::select(DeviceID, DateTimeGMT, Latitude, Longitude, Altitude, PDOP, MainV, Temperature, FixStatus, Satellites) %>%
     dplyr::arrange(DeviceID, DateTimeGMT)
   return(GPSDat)
