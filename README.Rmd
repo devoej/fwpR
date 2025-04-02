@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## fwpR package
-`fwpR` provides functions commonly used by the Proffitt research team to improve workflow and coding efficiency.
+`fwpR` provides functions commonly used by the research unit team to improve workflow and coding efficiency.
 
 To install or update, run:
 `devtools::install_github("devoej/fwpR")`

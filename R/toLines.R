@@ -16,6 +16,7 @@
 #' @param long if data.frame, name of the field containing the longitude, in quotes
 #' @return sf object containing line feature geometries by individual
 #' @export
+#'
 
 # Function to convert collar locs to lines
 toLines <- function(x,
@@ -36,6 +37,10 @@ toLines <- function(x,
     sf <- x
 
     }
+
+  # Remove any with too few data (1 row)
+  keepers <- sf %>% st_set_geometry(NULL) %>% group_by(!!sym(indID)) %>% summarise(n = n()) %>% filter(n > 1) %>% pull(!!sym(indID))
+  sf <- sf %>% filter(!!sym(indID) %in% keepers)
 
   # Loop thru individual animals to create line features for each
   uniqueInds <- unique(sf[[indID]])
