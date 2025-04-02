@@ -11,12 +11,12 @@ lotekDownload(Username, Password, StartDate, EndDate)
 
 \item{Password}{Webservice password credential}
 
-\item{StartDate}{beginning date of download, assumes from 12AM onwards}
+\item{StartDate}{beginning date (local MST, "YYYY-MM-DD") of download. Assumes from 12AM onwards and accounts for daylight savings}
 
-\item{EndDate}{Webservice username credential, assumes up to 11:59PM}
+\item{EndDate}{ending date (local MST, "YYYY-MM-DD" or Sys.Date()) of download. Data downloaded is inclusive of this date. Assumes up to 11:59PM and accounts for daylight savings}
 }
 \value{
-A dataframe of collar locations within the provided start and end dates, arranged by device SN and date
+A dataframe of collar fix locations occurring within the specified start and end dates, arranged by device SN and date. Output intended to mimic that of manually downloaded data from Webservice (one notable consequence is that it only outputs GMT, not local MST).
 }
 \description{
 This function downloads Lotek collar data and outputs a dataframe.

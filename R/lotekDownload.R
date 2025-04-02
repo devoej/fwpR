@@ -2,11 +2,14 @@
 #'
 #' This function downloads Lotek collar data and outputs a dataframe.
 #'
+#' @import tidyverse
+#' @import dplyr
+#'
 #' @param Username Webservice username credential
 #' @param Password Webservice password credential
-#' @param StartDate beginning date of download, assumes from 12AM onwards
-#' @param EndDate Webservice username credential, assumes up to 11:59PM
-#' @return A dataframe of collar locations within the provided start and end dates, arranged by device SN and date
+#' @param StartDate beginning date (local MST, "YYYY-MM-DD") of download. Assumes from 12AM onwards and accounts for daylight savings
+#' @param EndDate ending date (local MST, "YYYY-MM-DD" or Sys.Date()) of download. Data downloaded is inclusive of this date. Assumes up to 11:59PM and accounts for daylight savings
+#' @return A dataframe of collar fix locations occurring within the specified start and end dates, arranged by device SN and date. Output intended to mimic that of manually downloaded data from Webservice (one notable consequence is that it only outputs GMT, not local MST).
 #' @export
 
 # - Function to download lotek data
@@ -16,6 +19,23 @@ lotekDownload <- function(Username, # WebService username
                           StartDate, # Desired start date
                           EndDate) { # Desired end date
 
+  # prep Start & End Dates
+  StartDate <- with_tz(as.POSIXct(StartDate, tz = "MST7MDT"), tzone = "UTC")
+  StartDate <- paste0(as.Date(StartDate, tz = "UTC"),
+                      "T",
+                      strftime(StartDate, format = "%H:%M:%S", tz = "UTC"),
+                      "Z")
+
+  if(inherits(EndDate, "Date") == TRUE) {
+    # if value is a date (i.e., used Sys.Date()), force timezone to be local MST instead of UTC
+    tz(EndDate) <- "MST7MDT"
+  } else {
+    # otherwise, turn to a date datatype with local MST
+    EndDate <- as.POSIXct(EndDate, tz = "MST7MDT")
+  }
+  EndDate <- with_tz(EndDate, tzone = "UTC") + days(1) - minutes(1) # makes inclusive of desired date
+
+  # download from Webservice API
   res <- httr::POST("https://webservice.lotek.com/API/user/login",
                     body = list(grant_type = "password",
                                 username = Username,
@@ -25,13 +45,14 @@ lotekDownload <- function(Username, # WebService username
   key <- as.character(list(httr::content(res))[[1]][1])
 
   positions <- httr::GET(paste0("https://webservice.lotek.com/API/positions/findByDate?from=",
-                               paste0(StartDate, "T07:00:00Z"), # Must be in yyyy-mm-ddThh:mm:00Z format (= 12:00 am, Mtn Standard Time)
+                               paste0(StartDate, "T07:00:00Z"), # Must be in yyyy-mm-ddThh:mm:00Z format (i.e., when daylight savings on, 06:00 am UTC = 12:00 am MST)
                                "&to=",
-                               paste0(EndDate, "T06:59:59Z")), # Must be in yyyy-mm-ddThh:mm:00Z format (= 11:59 pm, Mtn Standard Time)
+                               paste0(EndDate, "T06:59:59Z")), # Must be in yyyy-mm-ddThh:mm:00Z format (= 11:59 pm MST)
                          httr::add_headers(Authorization = paste("Bearer", key, sep = " ")))
 
   content <- httr::content(positions, as = "parsed", type = "application/json")
 
+  # tidy the data
   GPSDat <- dplyr::bind_rows(content) %>%
     dplyr::mutate(DateTimeGMT = lubridate::parse_date_time(RecDateTime, orders = "ymd_HMS"),
            FixStatus = parse_RxStatus(RxStatus), # see function below
@@ -41,7 +62,7 @@ lotekDownload <- function(Username, # WebService username
   return(GPSDat)
 }
 
-# - Function to parse the RxStatus field to match output from manually downloads
+# - Function to parse the RxStatus field to match output from manually downloaded data
 #   Function provided by Ben Fostaty at Lotek
 parse_RxStatus <- Vectorize(
   function(x){

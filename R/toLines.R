@@ -5,6 +5,10 @@
 #' - Coordinates must be in WGS84 - Lat/Long
 #' - Assumes collar data has been "cleaned" prior to running function
 #'
+#' @import tidyverse
+#' @import dplyr
+#' @import sf
+#'
 #' @param x data.frame or sf point geometry object containing collar locations
 #' @param indID name of the field identifying individual animals, in quotes (required)
 #' @param datetime name of the field identifying DateTime, in quotes (required)

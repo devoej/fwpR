@@ -3,4 +3,7 @@
 export("%>%")
 export(lotekDownload)
 export(toLines)
+import(dplyr)
+import(sf)
+import(tidyverse)
 importFrom(magrittr,"%>%")
