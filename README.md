@@ -3,7 +3,7 @@
 
 ## fwpR package
 
-`fwpR` provides functions commonly used by the Proffitt research team to
+`fwpR` provides functions commonly used by the research unit team to
 improve workflow and coding efficiency.
 
 To install or update, run: `devtools::install_github("devoej/fwpR")`
