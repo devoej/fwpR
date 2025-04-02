@@ -46,6 +46,8 @@ toLines <- function(x,
   uniqueInds <- unique(sf[[indID]])
   linesList <- list()
 
+  print(paste0("Converting points to lines by individual (", length(uniqueInds), " total individuals)"))
+
   for(i in 1:length(uniqueInds)) {
 
     # Filter to individual
@@ -75,9 +77,11 @@ toLines <- function(x,
 
     linesList[[i]] <- sfIndLns
 
-    print(paste(which(uniqueInds == uniqueInds[i]), "OF", length(uniqueInds), "INDIVIDUALS COMPLETED", sep = " "))
+    print(paste0(which(uniqueInds == uniqueInds[i]), " of ", length(uniqueInds), " individuals completed"))
 
   }
+
+  print("Finalizing dataset...")
 
   # Bind together all individual lines
   linesFinal <- do.call(rbind, linesList)
