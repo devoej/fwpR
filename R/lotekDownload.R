@@ -19,23 +19,35 @@ lotekDownload <- function(Username, # WebService username
                           StartDate, # Desired start date
                           EndDate) { # Desired end date
 
-  # prep Start & End Dates
-  StartDate <- with_tz(as.POSIXct(StartDate, tz = "MST7MDT"), tzone = "UTC")
+  # ~ ~ prep Start Date
+  # if value is a date (i.e., used Sys.Date()), force timezone to be local MST instead of UTC
+  if(inherits(StartDate, "Date") == TRUE) {
+    tz(StartDate) <- "MST7MDT"
+    # otherwise, turn to a date datatype with local MST
+  } else {
+    StartDate <- as.POSIXct(StartDate, tz = "MST7MDT")
+  }
+  StartDate <- with_tz(StartDate, tzone = "UTC")
   StartDate <- paste0(as.Date(StartDate, tz = "UTC"),
                       "T",
                       strftime(StartDate, format = "%H:%M:%S", tz = "UTC"),
-                      "Z")
+                      "Z") # (i.e., when daylight savings on, 06:00 am UTC = 12:00 am MST)
 
+  # ~ ~ prep End Date
+  # if value is a date (i.e., used Sys.Date()), force timezone to be local MST instead of UTC
   if(inherits(EndDate, "Date") == TRUE) {
-    # if value is a date (i.e., used Sys.Date()), force timezone to be local MST instead of UTC
     tz(EndDate) <- "MST7MDT"
-  } else {
     # otherwise, turn to a date datatype with local MST
+    } else {
     EndDate <- as.POSIXct(EndDate, tz = "MST7MDT")
   }
-  EndDate <- with_tz(EndDate, tzone = "UTC") + days(1) - minutes(1) # makes inclusive of desired date
+  EndDate <- with_tz(EndDate, tzone = "UTC") + days(1) - minutes(1) # makes inclusive of desired date, to end of day
+  EndDate <- paste0(as.Date(EndDate, tz = "UTC"),
+                      "T",
+                      strftime(EndDate, format = "%H:%M:%S", tz = "UTC"),
+                      "Z") # (= 11:59 pm MST)
 
-  # download from Webservice API
+  # ~ ~ download from Webservice API
   res <- httr::POST("https://webservice.lotek.com/API/user/login",
                     body = list(grant_type = "password",
                                 username = Username,
@@ -45,14 +57,14 @@ lotekDownload <- function(Username, # WebService username
   key <- as.character(list(httr::content(res))[[1]][1])
 
   positions <- httr::GET(paste0("https://webservice.lotek.com/API/positions/findByDate?from=",
-                               paste0(StartDate, "T07:00:00Z"), # Must be in yyyy-mm-ddThh:mm:00Z format (i.e., when daylight savings on, 06:00 am UTC = 12:00 am MST)
+                               StartDate, # Must be in yyyy-mm-ddThh:mm:00Z format
                                "&to=",
-                               paste0(EndDate, "T06:59:59Z")), # Must be in yyyy-mm-ddThh:mm:00Z format (= 11:59 pm MST)
+                               EndDate), # Must be in yyyy-mm-ddThh:mm:00Z format
                          httr::add_headers(Authorization = paste("Bearer", key, sep = " ")))
 
   content <- httr::content(positions, as = "parsed", type = "application/json")
 
-  # tidy the data
+  # ~ ~ tidy the data
   GPSDat <- dplyr::bind_rows(content) %>%
     dplyr::mutate(DateTimeGMT = lubridate::parse_date_time(RecDateTime, orders = "ymd_HMS"),
            FixStatus = parse_RxStatus(RxStatus), # see function below
